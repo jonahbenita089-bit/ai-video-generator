@@ -1,12 +1,8 @@
 from flask import Flask, render_template, request, jsonify
 from video_generator import VideoGenerator
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 app = Flask(__name__)
-video_gen = VideoGenerator()
+video_generator = VideoGenerator()
 
 @app.route('/')
 def index():
@@ -14,20 +10,22 @@ def index():
 
 @app.route('/api/generate-video', methods=['POST'])
 def generate_video():
-    data = request.json
-    topic = data.get('topic')
-    duration = data.get('duration', 6000)  # 100 minutes in seconds
-    
+    payload = request.get_json(silent=True) or {}
+    topic = (payload.get('topic') or '').strip()
+    duration = int(payload.get('duration') or 6000)
+
+    if not topic:
+        return jsonify({"success": False, "error": "Please provide a topic."}), 400
+
     try:
-        video_path = video_gen.generate(topic, duration)
-        return jsonify({'success': True, 'video_path': video_path})
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        result = video_generator.generate(topic=topic, duration_seconds=duration)
+        return jsonify({"success": True, **result})
+    except Exception as exc:
+        return jsonify({"success": False, "error": str(exc)}), 500
 
 @app.route('/api/progress', methods=['GET'])
-def get_progress():
-    progress = video_gen.get_progress()
-    return jsonify(progress)
+def api_progress():
+    return jsonify(video_generator.get_progress())
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)

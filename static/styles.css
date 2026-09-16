@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Long-Form Video Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="hero">
+        <h1>AI Long-Form Video Generator</h1>
+        <p>Turn a topic into a structured script, narration, and video.</p>
+      </header>
+
+      <form id="videoForm" class="card">
+        <label for="topic">Topic</label>
+        <input id="topic" name="topic" type="text" placeholder="e.g. The future of AI in education" required />
+
+        <label for="duration">Duration (seconds)</label>
+        <input id="duration" name="duration" type="number" min="60" max="6000" value="6000" />
+
+        <button type="submit">Generate Video</button>
+      </form>
+
+      <section class="status card" id="statusBox">
+        <h2>Generation status</h2>
+        <p id="statusText">Idle</p>
+        <div class="progress-bar">
+          <div id="progressFill"></div>
+        </div>
+      </section>
+
+      <section id="resultBox" class="result card hidden">
+        <h2>Output</h2>
+        <video id="videoPlayer" controls></video>
+        <p id="resultMessage"></p>
+      </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>
