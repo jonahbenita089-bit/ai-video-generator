@@ -7,11 +7,11 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
   </head>
   <body>
-    <main class="container">
+    <main class="container app-shell">
       <section class="card joke-card" aria-labelledby="title">
         <div class="top-row">
           <p class="eyebrow">Powered by JokeAPI</p>
-          <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle dark mode">🌙</button>
+          <button id="themeToggle" class="icon-button" type="button" aria-label="Toggle color theme">🌙</button>
         </div>
 
         <h1 id="title">Random Joke Generator</h1>
@@ -29,11 +29,26 @@
 
         <div class="button-row">
           <button id="jokeButton" type="button">Tell me a joke</button>
-          <button id="copyButton" type="button" class="secondary">Copy joke</button>
+          <button id="copyButton" type="button" class="secondary">Copy</button>
+        </div>
+
+        <div class="button-row secondary-row">
+          <button id="shareButton" type="button" class="secondary">Share</button>
+          <button id="speakButton" type="button" class="secondary">Speak</button>
+        </div>
+
+        <button id="favoriteButton" type="button" class="favorite-button">Save to favorites</button>
+        <button id="favoriteRandomButton" type="button" class="secondary">Random from favorites</button>
+
+        <div id="loader" class="loader hidden" aria-live="polite">
+          <span></span>
+          <span></span>
+          <span></span>
         </div>
 
         <p id="status" class="status" role="status" aria-live="polite"></p>
         <blockquote id="joke" class="joke" aria-live="polite">Your joke will appear here.</blockquote>
+
         <div id="favoriteList" class="favorite-list"></div>
         <p class="source">Jokes provided by <a href="https://jokeapi.dev/" target="_blank" rel="noreferrer">JokeAPI</a>.</p>
       </section>

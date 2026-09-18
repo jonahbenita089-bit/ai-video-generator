@@ -20,3 +20,8 @@ The original long-form video endpoints remain available under `/api/generate-vid
 - Copy joke button
 - Dark and light theme toggle
 - Save favorite jokes locally in the browser
+- Share joke via native sharing when available
+- Text-to-speech playback
+- Random favorite joke picker
+- Loading animation
+- Mobile-optimized design
