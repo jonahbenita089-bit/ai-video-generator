@@ -12,7 +12,6 @@ def index():
 
 @app.route('/api/joke', methods=['GET'])
 def random_joke():
-    """Return one safe random joke from JokeAPI."""
     category = request.args.get('category', 'Any')
     allowed_categories = {'Any', 'Programming', 'Misc', 'Dark', 'Pun', 'Spooky', 'Christmas'}
     if category not in allowed_categories:

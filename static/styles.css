@@ -138,6 +138,12 @@ body.light .joke { background: rgba(226, 232, 240, 0.9); color: #0f172a; }
   color: var(--muted);
   margin: 0;
 }
+.history-header h2 {
+  text-align: left;
+  margin: 18px 0 8px;
+  font-size: 1rem;
+  color: var(--muted);
+}
 a { color: var(--accent); }
 
 @media (max-width: 560px) {

@@ -25,3 +25,4 @@ The original long-form video endpoints remain available under `/api/generate-vid
 - Random favorite joke picker
 - Loading animation
 - Mobile-optimized design
+- Favorite jokes history panel
