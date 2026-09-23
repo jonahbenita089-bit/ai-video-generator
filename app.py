@@ -1,57 +1,102 @@
-from flask import Flask, render_template, request, jsonify
+import os
+import threading
+import uuid
+from pathlib import Path
+
+from flask import Flask, jsonify, render_template, request, send_from_directory, url_for
+from dotenv import load_dotenv
+
 from video_generator import VideoGenerator
-import requests
+
+load_dotenv()
 
 app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024
 video_generator = VideoGenerator()
-JOKE_API_URL = "https://v2.jokeapi.dev/joke/Any"
+VIDEO_DIR = Path(video_generator.composer.output_dir).resolve()
+VIDEO_DIR.mkdir(parents=True, exist_ok=True)
+jobs = {}
+jobs_lock = threading.Lock()
 
-@app.route('/')
-def index():
-    return render_template('index.html')
 
-@app.route('/api/joke', methods=['GET'])
-def random_joke():
-    category = request.args.get('category', 'Any')
-    allowed_categories = {'Any', 'Programming', 'Misc', 'Dark', 'Pun', 'Spooky', 'Christmas'}
-    if category not in allowed_categories:
-        return jsonify({'success': False, 'error': 'Unsupported joke category.'}), 400
-
-    try:
-        response = requests.get(
-            JOKE_API_URL,
-            params={'format': 'json', 'type': 'single', 'category': category, 'safe-mode': ''},
-            timeout=8,
-        )
-        response.raise_for_status()
-        data = response.json()
-        if data.get('error'):
-            return jsonify({'success': False, 'error': 'The joke service returned an error.'}), 502
-        joke = data.get('joke')
-        if not joke:
-            return jsonify({'success': False, 'error': 'No joke was returned.'}), 502
-        return jsonify({'success': True, 'joke': joke, 'category': data.get('category', category)})
-    except requests.RequestException:
-        return jsonify({'success': False, 'error': 'The joke service is temporarily unavailable.'}), 502
-
-@app.route('/api/generate-video', methods=['POST'])
-def generate_video():
-    payload = request.get_json(silent=True) or {}
-    topic = (payload.get('topic') or '').strip()
-    duration = int(payload.get('duration') or 6000)
-
-    if not topic:
-        return jsonify({'success': False, 'error': 'Please provide a topic.'}), 400
-
+def run_job(job_id, topic, duration):
     try:
         result = video_generator.generate(topic=topic, duration_seconds=duration)
-        return jsonify({'success': True, **result})
+        video_path = Path(result["video_path"]).resolve()
+        audio_path = Path(result["audio_path"]).resolve()
+        with jobs_lock:
+            jobs[job_id] = {
+                "id": job_id,
+                "status": "completed",
+                "percent": 100,
+                "message": "Video ready",
+                "video_url": url_for("download_video", filename=video_path.name),
+                "audio_url": url_for("download_audio", filename=audio_path.name) if audio_path.exists() else None,
+                "script_preview": result.get("script_preview", ""),
+                "duration_seconds": duration,
+            }
     except Exception as exc:
-        return jsonify({'success': False, 'error': str(exc)}), 500
+        with jobs_lock:
+            jobs[job_id] = {"id": job_id, "status": "failed", "percent": 0, "message": str(exc)}
 
-@app.route('/api/progress', methods=['GET'])
-def api_progress():
-    return jsonify(video_generator.get_progress())
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+@app.get("/")
+def index():
+    return render_template("index.html")
+
+
+@app.post("/api/jobs")
+def create_job():
+    payload = request.get_json(silent=True) or {}
+    topic = str(payload.get("topic", "")).strip()
+    try:
+        duration = int(payload.get("duration", 600))
+    except (TypeError, ValueError):
+        duration = 600
+    if not topic:
+        return jsonify({"error": "Please describe the video you want to create."}), 400
+    if len(topic) > 1000:
+        return jsonify({"error": "The video description is too long."}), 400
+    if duration < 10 or duration > 6000:
+        return jsonify({"error": "Duration must be between 10 seconds and 100 minutes."}), 400
+
+    job_id = uuid.uuid4().hex
+    with jobs_lock:
+        jobs[job_id] = {"id": job_id, "status": "queued", "percent": 0, "message": "Queued"}
+    threading.Thread(target=run_job, args=(job_id, topic, duration), daemon=True).start()
+    return jsonify({"id": job_id, "status_url": url_for("job_status", job_id=job_id)}), 202
+
+
+@app.get("/api/jobs/<job_id>")
+def job_status(job_id):
+    with jobs_lock:
+        job = jobs.get(job_id)
+    if not job:
+        return jsonify({"error": "Job not found."}), 404
+    # The generator currently exposes one shared progress object; use it while this job runs.
+    if job["status"] in {"queued", "running"}:
+        progress = video_generator.get_progress()
+        job = {**job, "status": "running", "percent": progress.get("percent", 0), "message": progress.get("status", "Working")}
+        with jobs_lock:
+            jobs[job_id] = job
+    return jsonify(job)
+
+
+@app.get("/videos/<path:filename>")
+def download_video(filename):
+    return send_from_directory(VIDEO_DIR, filename, as_attachment=False, mimetype="video/mp4")
+
+
+@app.get("/audio/<path:filename>")
+def download_audio(filename):
+    audio_dir = Path(video_generator.voiceover_engine.output_dir).resolve()
+    return send_from_directory(audio_dir, filename, as_attachment=True)
+
+
+@app.get("/healthz")
+def healthz():
+    return jsonify({"ok": True})
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5000")), debug=os.getenv("FLASK_DEBUG") == "1")

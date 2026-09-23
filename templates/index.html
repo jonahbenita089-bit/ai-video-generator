@@ -1,48 +1,31 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VideoGPT</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
-  </head>
-  <body>
-    <div class="app-layout">
-      <aside class="sidebar" id="sidebar">
-        <div class="brand"><span class="brand-mark">▶</span><span>VideoGPT</span></div>
-        <button class="new-chat" id="newChat">＋ New video</button>
-        <nav class="menu" aria-label="Main menu">
-          <button class="menu-item active" data-view="create"><span>✦</span> Create video</button>
-          <button class="menu-item" data-view="library"><span>▣</span> My videos</button>
-          <button class="menu-item" data-view="templates"><span>▤</span> Templates</button>
-        </nav>
-        <div class="sidebar-bottom">
-          <button class="menu-item" id="themeToggle"><span>☾</span> Dark mode</button>
-          <a class="menu-item" href="https://github.com/jonahbenita089-bit/ai-video-generator" target="_blank" rel="noreferrer"><span>?</span> Help &amp; feedback</a>
-          <div class="profile"><span class="avatar">J</span><span>Jonah</span><span class="dots">•••</span></div>
-        </div>
-      </aside>
-
-      <main class="main-content">
-        <header class="mobile-header"><button id="menuButton">☰</button><strong>VideoGPT</strong></header>
-        <section class="workspace" id="createView">
-          <div class="welcome"><p class="eyebrow">AI VIDEO STUDIO</p><h1>What video should we create?</h1><p>Describe your idea and VideoGPT will write the script, create narration, and compose the video.</p></div>
-          <div class="chat-card">
-            <div class="chat-history" id="chatHistory">
-              <div class="message assistant"><span class="message-avatar">✦</span><div><strong>VideoGPT</strong><p>Tell me what you want to make. For example: <em>“Create a 60-second video explaining how solar panels work.”</em></p></div></div>
-            </div>
-            <form id="videoForm" class="composer">
-              <textarea id="topic" rows="3" placeholder="Describe the video you want to create..." required></textarea>
-              <div class="composer-footer"><div class="options"><label>Duration <select id="duration"><option value="60">1 minute</option><option value="180">3 minutes</option><option value="600" selected>10 minutes</option><option value="3600">1 hour</option></select></label><button type="button" class="tool-button">＋ Add options</button></div><button class="send-button" type="submit">Create video <span>➤</span></button></div>
-            </form>
-          </div>
-          <div class="suggestions"><button data-prompt="Create an educational video about artificial intelligence">AI explained</button><button data-prompt="Create a motivational video about achieving your goals">Motivation</button><button data-prompt="Create a travel video about the most beautiful places in the world">Travel guide</button></div>
-          <div class="progress-card hidden" id="progressCard"><div class="progress-head"><strong id="progressStatus">Preparing generation</strong><span id="progressPercent">0%</span></div><div class="progress-track"><div id="progressBar"></div></div><p>Your video is being created. This may take a few minutes.</p></div>
-        </section>
-        <section class="workspace hidden" id="libraryView"><div class="page-heading"><h1>My videos</h1><p>Your generated videos will appear here.</p></div><div class="empty-state">▣<h2>No videos yet</h2><p>Create your first video to see it here.</p><button class="new-chat" id="emptyCreate">Create a video</button></div></section>
-        <section class="workspace hidden" id="templatesView"><div class="page-heading"><h1>Templates</h1><p>Start with an idea and make it your own.</p></div><div class="template-grid"><div class="template">🎓<h3>Explainer</h3><p>Teach any topic clearly.</p></div><div class="template">🚀<h3>Short documentary</h3><p>Tell a compelling story.</p></div><div class="template">✨<h3>Social video</h3><p>Make content people share.</p></div></div></section>
-      </main>
-    </div>
-    <script src="{{ url_for('static', filename='app.js') }}"></script>
-  </body>
-</html>
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Create narrated videos from an idea with AI.">
+  <title>VideoGPT — AI Video Studio</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><span class="brand-mark">▶</span><span>VideoGPT</span></div>
+    <button class="new-chat" id="newChat">＋ New video</button>
+    <nav class="menu"><button class="menu-item active" data-view="create"><span>✦</span>Create video</button><button class="menu-item" data-view="library"><span>▣</span>My videos</button><button class="menu-item" data-view="templates"><span>▤</span>Templates</button></nav>
+    <div class="sidebar-bottom"><button class="menu-item" id="themeToggle"><span>☾</span>Toggle theme</button><a class="menu-item" href="https://github.com/jonahbenita089-bit/ai-video-generator" target="_blank" rel="noreferrer"><span>?</span>Help & feedback</a><div class="profile"><span class="avatar">J</span><span>Jonah</span></div></div>
+  </aside>
+  <main class="main-content">
+    <header class="mobile-header"><button id="menuButton">☰</button><strong>VideoGPT</strong></header>
+    <section class="workspace" id="createView">
+      <div class="welcome"><p class="eyebrow">AI VIDEO STUDIO</p><h1>What video should we create?</h1><p>Describe your idea and VideoGPT writes the script, creates narration, builds visuals, and returns an MP4.</p></div>
+      <div class="chat-card"><div class="chat-history" id="chatHistory"><div class="message assistant"><span class="message-avatar">✦</span><div><strong>VideoGPT</strong><p>Tell me what you want to make. Try “Create a 60-second video explaining how solar panels work.”</p></div></div></div><form id="videoForm" class="composer"><textarea id="topic" rows="3" maxlength="1000" placeholder="Describe the video you want to create..." required></textarea><div class="composer-footer"><label>Duration <select id="duration"><option value="60">1 minute</option><option value="180">3 minutes</option><option value="600" selected>10 minutes</option><option value="3600">1 hour</option></select></label><button class="send-button" type="submit">Create video <span>➤</span></button></div></form></div>
+      <div class="suggestions"><button data-prompt="Create an educational video about artificial intelligence">AI explained</button><button data-prompt="Create a motivational video about achieving your goals">Motivation</button><button data-prompt="Create a travel video about beautiful places in the world">Travel guide</button></div>
+      <div class="progress-card hidden" id="progressCard"><div class="progress-head"><strong id="progressStatus">Preparing generation</strong><span id="progressPercent">0%</span></div><div class="progress-track"><div id="progressBar"></div></div><p id="progressHint">Your video is being created. This may take a few minutes.</p></div>
+      <div class="result-card hidden" id="resultCard"><div><span class="result-icon">✓</span><div><h2 id="resultTitle">Your video is ready</h2><p id="resultSummary"></p></div></div><video id="videoPreview" controls preload="metadata"></video><div class="result-actions"><a id="downloadVideo" class="download-button" download>Download MP4</a><a id="downloadAudio" class="secondary-button hidden" download>Download audio</a></div></div>
+    </section>
+    <section class="workspace hidden" id="libraryView"><div class="page-heading"><h1>My videos</h1><p>Generated videos from this browser session will appear here.</p></div><div class="empty-state" id="libraryEmpty">▣<h2>No videos yet</h2><p>Create your first video to see it here.</p><button class="new-chat" id="emptyCreate">Create a video</button></div><div class="video-grid" id="videoGrid"></div></section>
+    <section class="workspace hidden" id="templatesView"><div class="page-heading"><h1>Templates</h1><p>Start with a proven format.</p></div><div class="template-grid"><button class="template" data-prompt="Create an explainer video teaching a complex topic simply">🎓<h3>Explainer</h3><p>Teach any topic clearly.</p></button><button class="template" data-prompt="Create a short documentary with a compelling story arc">🚀<h3>Documentary</h3><p>Tell a compelling story.</p></button><button class="template" data-prompt="Create a vertical social media video with a strong hook">✨<h3>Social video</h3><p>Make content people share.</p></button></div></section>
+  </main>
+</div>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body></html>
