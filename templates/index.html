@@ -3,59 +3,46 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Random Joke Generator</title>
+    <title>VideoGPT</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
   </head>
   <body>
-    <main class="container app-shell">
-      <section class="card joke-card" aria-labelledby="title">
-        <div class="top-row">
-          <p class="eyebrow">Powered by JokeAPI</p>
-          <button id="themeToggle" class="icon-button" type="button" aria-label="Toggle color theme">🌙</button>
+    <div class="app-layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="brand"><span class="brand-mark">▶</span><span>VideoGPT</span></div>
+        <button class="new-chat" id="newChat">＋ New video</button>
+        <nav class="menu" aria-label="Main menu">
+          <button class="menu-item active" data-view="create"><span>✦</span> Create video</button>
+          <button class="menu-item" data-view="library"><span>▣</span> My videos</button>
+          <button class="menu-item" data-view="templates"><span>▤</span> Templates</button>
+        </nav>
+        <div class="sidebar-bottom">
+          <button class="menu-item" id="themeToggle"><span>☾</span> Dark mode</button>
+          <a class="menu-item" href="https://github.com/jonahbenita089-bit/ai-video-generator" target="_blank" rel="noreferrer"><span>?</span> Help &amp; feedback</a>
+          <div class="profile"><span class="avatar">J</span><span>Jonah</span><span class="dots">•••</span></div>
         </div>
+      </aside>
 
-        <h1 id="title">Random Joke Generator</h1>
-        <p class="subtitle">Need a quick laugh? Pick a category and get a safe joke from an external API.</p>
-
-        <label for="category">Category</label>
-        <select id="category">
-          <option value="Any">Any</option>
-          <option value="Programming">Programming</option>
-          <option value="Misc">Miscellaneous</option>
-          <option value="Pun">Puns</option>
-          <option value="Spooky">Spooky</option>
-          <option value="Christmas">Christmas</option>
-        </select>
-
-        <div class="button-row">
-          <button id="jokeButton" type="button">Tell me a joke</button>
-          <button id="copyButton" type="button" class="secondary">Copy</button>
-        </div>
-
-        <div class="button-row secondary-row">
-          <button id="shareButton" type="button" class="secondary">Share</button>
-          <button id="speakButton" type="button" class="secondary">Speak</button>
-        </div>
-
-        <button id="favoriteButton" type="button" class="favorite-button">Save to favorites</button>
-        <button id="favoriteRandomButton" type="button" class="secondary">Random from favorites</button>
-
-        <div id="loader" class="loader hidden" aria-live="polite">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-
-        <p id="status" class="status" role="status" aria-live="polite"></p>
-        <blockquote id="joke" class="joke" aria-live="polite">Your joke will appear here.</blockquote>
-
-        <div class="history-header">
-          <h2>Favorite jokes</h2>
-        </div>
-        <div id="favoriteList" class="favorite-list"></div>
-        <p class="source">Jokes provided by <a href="https://jokeapi.dev/" target="_blank" rel="noreferrer">JokeAPI</a>.</p>
-      </section>
-    </main>
+      <main class="main-content">
+        <header class="mobile-header"><button id="menuButton">☰</button><strong>VideoGPT</strong></header>
+        <section class="workspace" id="createView">
+          <div class="welcome"><p class="eyebrow">AI VIDEO STUDIO</p><h1>What video should we create?</h1><p>Describe your idea and VideoGPT will write the script, create narration, and compose the video.</p></div>
+          <div class="chat-card">
+            <div class="chat-history" id="chatHistory">
+              <div class="message assistant"><span class="message-avatar">✦</span><div><strong>VideoGPT</strong><p>Tell me what you want to make. For example: <em>“Create a 60-second video explaining how solar panels work.”</em></p></div></div>
+            </div>
+            <form id="videoForm" class="composer">
+              <textarea id="topic" rows="3" placeholder="Describe the video you want to create..." required></textarea>
+              <div class="composer-footer"><div class="options"><label>Duration <select id="duration"><option value="60">1 minute</option><option value="180">3 minutes</option><option value="600" selected>10 minutes</option><option value="3600">1 hour</option></select></label><button type="button" class="tool-button">＋ Add options</button></div><button class="send-button" type="submit">Create video <span>➤</span></button></div>
+            </form>
+          </div>
+          <div class="suggestions"><button data-prompt="Create an educational video about artificial intelligence">AI explained</button><button data-prompt="Create a motivational video about achieving your goals">Motivation</button><button data-prompt="Create a travel video about the most beautiful places in the world">Travel guide</button></div>
+          <div class="progress-card hidden" id="progressCard"><div class="progress-head"><strong id="progressStatus">Preparing generation</strong><span id="progressPercent">0%</span></div><div class="progress-track"><div id="progressBar"></div></div><p>Your video is being created. This may take a few minutes.</p></div>
+        </section>
+        <section class="workspace hidden" id="libraryView"><div class="page-heading"><h1>My videos</h1><p>Your generated videos will appear here.</p></div><div class="empty-state">▣<h2>No videos yet</h2><p>Create your first video to see it here.</p><button class="new-chat" id="emptyCreate">Create a video</button></div></section>
+        <section class="workspace hidden" id="templatesView"><div class="page-heading"><h1>Templates</h1><p>Start with an idea and make it your own.</p></div><div class="template-grid"><div class="template">🎓<h3>Explainer</h3><p>Teach any topic clearly.</p></div><div class="template">🚀<h3>Short documentary</h3><p>Tell a compelling story.</p></div><div class="template">✨<h3>Social video</h3><p>Make content people share.</p></div></div></section>
+      </main>
+    </div>
     <script src="{{ url_for('static', filename='app.js') }}"></script>
   </body>
 </html>
